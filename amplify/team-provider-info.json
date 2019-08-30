@@ -1,0 +1,14 @@
+{
+    "prod": {
+        "awscloudformation": {
+            "AuthRoleName": "s3-filemanager-prod-20190830120724-authRole",
+            "UnauthRoleArn": "arn:aws:iam::775212403782:role/s3-filemanager-prod-20190830120724-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::775212403782:role/s3-filemanager-prod-20190830120724-authRole",
+            "Region": "ap-southeast-1",
+            "DeploymentBucketName": "s3-filemanager-prod-20190830120724-deployment",
+            "UnauthRoleName": "s3-filemanager-prod-20190830120724-unauthRole",
+            "StackName": "s3-filemanager-prod-20190830120724",
+            "StackId": "arn:aws:cloudformation:ap-southeast-1:775212403782:stack/s3-filemanager-prod-20190830120724/ad15dad0-cadb-11e9-a52b-0285c5482420"
+        }
+    }
+}

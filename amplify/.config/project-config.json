@@ -1,0 +1,17 @@
+{
+    "projectName": "s3-filemanager",
+    "version": "2.0",
+    "frontend": "javascript",
+    "javascript": {
+        "framework": "vue",
+        "config": {
+            "SourceDir": "src",
+            "DistributionDir": "dist/pwa",
+            "BuildCommand": "quasar build -m pwa",
+            "StartCommand": "quasar serve --history dist/pwa"
+        }
+    },
+    "providers": [
+        "awscloudformation"
+    ]
+}
