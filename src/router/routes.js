@@ -6,6 +6,7 @@ const routes = [
     children: [
       {
         path: '',
+        alias: 'index.html',
         component: () => import('pages/Index.vue')
       },
       {
