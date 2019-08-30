@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "aws-amplify": "^1.1.36",
+    "aws-amplify-vue": "^0.2.14",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
