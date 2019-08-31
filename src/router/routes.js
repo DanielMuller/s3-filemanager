@@ -10,7 +10,7 @@ const routes = [
         alias: 'index.html',
         component: () => import('pages/Index.vue'),
         meta: {
-          requiresAuth: false
+          requiresAuth: true
         }
       },
       {
