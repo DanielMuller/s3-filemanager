@@ -5,9 +5,13 @@ const routes = [
     component: () => import('layouts/MyLayout.vue'),
     children: [
       {
+        name: 'home',
         path: '',
         alias: 'index.html',
-        component: () => import('pages/Index.vue')
+        component: () => import('pages/Index.vue'),
+        meta: {
+          requiresAuth: false
+        }
       },
       {
         name: 'login',
