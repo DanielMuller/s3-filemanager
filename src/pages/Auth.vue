@@ -1,5 +1,5 @@
 <template lang="pug">
-  q-page(padding).justify-center.items-center
+  q-page(padding).fullscreen.bg-grey-4.window-height.window-width.row.justify-center.items-center
     amplify-authenticator(:authConfig="authConfig")
 </template>
 
