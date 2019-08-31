@@ -22,6 +22,12 @@
       content-class="bg-grey-2"
     )
       q-list
+        q-item(v-if="signedIn")
+          q-item-section(avatar)
+            q-icon(name="lock")
+          q-item-section
+            q-item-label
+              amplify-sign-out
         q-item-label(header) Essential Links
         q-item(clickable tag="a" target="_blank" href="https://quasar.dev")
           q-item-section(avatar)
@@ -71,8 +77,25 @@ export default {
   name: 'MyLayout',
   data () {
     return {
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      signedIn: false
     }
+  },
+  created () {
+    this.$AmplifyEventBus.$on('authState', authState => {
+      if (authState === 'signedIn') {
+        this.signedIn = true
+      } else {
+        this.signedIn = false
+      }
+    })
+    this.$Auth.currentAuthenticatedUser()
+      .then(user => {
+        this.signedIn = true
+      })
+      .catch(err => { // eslint-disable-line handle-callback-err
+        this.signedIn = false
+      })
   },
   methods: {
     openURL
