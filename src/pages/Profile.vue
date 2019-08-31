@@ -1,5 +1,5 @@
 <template lang="pug">
-  q-page(padding)
+  q-page(padding v-if="user")
     h1 Welcome {{ user.username }}
 </template>
 
