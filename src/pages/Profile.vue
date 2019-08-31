@@ -11,10 +11,12 @@ export default {
       user: null
     }
   },
-  created () {
+  beforeCreate () {
     this.$Auth.currentAuthenticatedUser()
       .then(user => {
         this.user = user
+      })
+      .catch(err => { // eslint-disable-line handle-callback-err
       })
   }
 }
