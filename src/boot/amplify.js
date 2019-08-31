@@ -29,7 +29,8 @@ export default async ({
           path: '/auth'
         })
       })
+    } else {
+      next()
     }
-    next()
   })
 }
