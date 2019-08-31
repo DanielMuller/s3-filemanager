@@ -10,6 +10,9 @@ export default {
   data () {
     return {
       authConfig: {
+        signInConfig: {
+          isSignUpDisplayed: false
+        },
         signUpConfig: {
           hiddenDefaults: [
             'phone_number'
