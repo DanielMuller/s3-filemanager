@@ -44,7 +44,10 @@ module.exports = function (ctx) {
         'QList',
         'QItem',
         'QItemSection',
-        'QItemLabel'
+        'QItemLabel',
+        'QExpansionItem',
+        'QCard',
+        'QCardSection'
       ],
 
       directives: [
