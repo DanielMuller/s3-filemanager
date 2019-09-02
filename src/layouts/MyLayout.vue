@@ -33,6 +33,11 @@
             q-icon(name="lock")
           q-item-section
             q-item-label Sign Out
+        q-item(v-if="signedIn" clickable :to="{name:'files'}")
+          q-item-section(avatar)
+            q-icon(name="folder")
+          q-item-section
+            q-item-label My Files
         q-item-label(header) Essential Links
         q-item(clickable tag="a" target="_blank" href="https://quasar.dev")
           q-item-section(avatar)
