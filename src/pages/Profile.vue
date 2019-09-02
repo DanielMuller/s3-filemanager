@@ -1,6 +1,15 @@
 <template lang="pug">
   q-page(padding v-if="user")
     h1 Welcome {{ user.username }}
+    q-list.rounded-borders(bordered)
+      q-expansion-item(expand-separator icon="perm_identity" label="this.user" caption="this.$Auth.currentAuthenticatedUser()")
+        q-card
+          q-card-section.scroll.json
+            pre {{user}}
+      q-expansion-item(v-if="userInfo" expand-separator icon="face" label="this.userInfo" caption="this.$Auth.currentUserInfo()")
+        q-card
+          q-card-section.scroll.json
+            pre {{userInfo}}
 </template>
 
 <script>
@@ -8,13 +17,17 @@ export default {
   name: 'Profile',
   data () {
     return {
-      user: null
+      user: null,
+      userInfo: null
     }
   },
   beforeCreate () {
     this.$Auth.currentAuthenticatedUser()
       .then(user => {
         this.user = user
+        this.$Auth.currentUserInfo().then(userInfo => {
+          this.userInfo = userInfo
+        })
       })
       .catch(err => { // eslint-disable-line handle-callback-err
       })
@@ -22,5 +35,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="stylus">
+.json
+  font-size 0.7em
 </style>
