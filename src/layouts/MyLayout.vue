@@ -26,6 +26,12 @@
           q-item-section(avatar)
             q-icon(name="lock")
           q-item-section
+            q-item-label Sign Out
+        q-item(v-if="signedIn" clickable :to="{name:'profile'}")
+          q-item-section(avatar)
+            q-icon(name="account_box")
+          q-item-section
+            q-item-label Profile
         q-item-label(header) Essential Links
         q-item(clickable tag="a" target="_blank" href="https://quasar.dev")
           q-item-section(avatar)
