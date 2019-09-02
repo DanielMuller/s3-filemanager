@@ -22,16 +22,17 @@
       content-class="bg-grey-2"
     )
       q-list
-        q-item(v-if="signedIn" clickable @click="signOut")
-          q-item-section(avatar)
-            q-icon(name="lock")
-          q-item-section
-            q-item-label Sign Out
+        q-item-label(header v-if="signedIn") Account
         q-item(v-if="signedIn" clickable :to="{name:'profile'}")
           q-item-section(avatar)
             q-icon(name="account_box")
           q-item-section
             q-item-label Profile
+        q-item(v-if="signedIn" clickable @click="signOut")
+          q-item-section(avatar)
+            q-icon(name="lock")
+          q-item-section
+            q-item-label Sign Out
         q-item-label(header) Essential Links
         q-item(clickable tag="a" target="_blank" href="https://quasar.dev")
           q-item-section(avatar)
