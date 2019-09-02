@@ -28,6 +28,14 @@ const routes = [
         meta: {
           requiresAuth: true
         }
+      },
+      {
+        name: 'files',
+        path: 'files',
+        component: () => import('pages/Files.vue'),
+        meta: {
+          requiresAuth: true
+        }
       }
     ]
   }
