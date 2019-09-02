@@ -6,5 +6,11 @@
 			"dependsOn": []
 		}
 	},
-	"hosting": {}
+	"hosting": {},
+	"storage": {
+		"s3a0008d39": {
+			"service": "S3",
+			"providerPlugin": "awscloudformation"
+		}
+	}
 }
