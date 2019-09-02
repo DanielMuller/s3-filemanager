@@ -10,6 +10,10 @@
         q-card
           q-card-section.scroll.json
             pre {{userInfo}}
+      q-expansion-item(expand-separator icon="settings_applications" label="$q")
+        q-card
+          q-card-section.scroll.json
+            pre {{$q}}
 </template>
 
 <script>
