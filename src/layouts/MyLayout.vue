@@ -22,12 +22,10 @@
       content-class="bg-grey-2"
     )
       q-list
-        q-item(v-if="signedIn")
+        q-item(v-if="signedIn" clickable @click="signOut")
           q-item-section(avatar)
             q-icon(name="lock")
           q-item-section
-            q-item-label
-              amplify-sign-out
         q-item-label(header) Essential Links
         q-item(clickable tag="a" target="_blank" href="https://quasar.dev")
           q-item-section(avatar)
@@ -98,7 +96,16 @@ export default {
       })
   },
   methods: {
-    openURL
+    openURL,
+    signOut: function (event) {
+      this.$Amplify.Auth.signOut()
+        .then(() => {
+          this.$AmplifyEventBus.$emit('authState', 'signedOut')
+        })
+        .catch(e => {
+          console.error(e.message) // eslint-disable-line no-console
+        })
+    }
   }
 }
 </script>
