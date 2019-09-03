@@ -16,18 +16,24 @@
     )
       template(v-slot:top)
         q-breadcrumbs
-          q-breadcrumbs-el(label="Home" icon="home" @click="setPath()")
+          q-breadcrumbs-el(label="Home" icon="eva-home" @click="setPath()")
           q-breadcrumbs-el(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
         q-space
         q-input(outlined dense debounce="300" color="primary" v-model="filter" placeholder="Filter")
           template(v-slot:append)
             q-icon(name="search")
         q-space
-        q-btn(flat dense :disable="loading" icon="create_new_folder")
+        q-btn(flat dense :disable="loading" icon="eva-folder-add")
           q-popup-edit(v-model="newFolder")
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
-        q-btn(flat dense :disable="loading" icon="note_add" @click="showUploader = !showUploader")
-        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="delete_forever" @click="delete_files")
+        q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploader = !showUploader")
+        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="delete_files")
+      template(v-slot:body-cell-name="props")
+        q-td(:props="props")
+          div
+            q-icon.q-mr-xs(:name="getIcon(getType(props.row.key))" square size="1.5em")
+            span.cursor-pointer(v-if="getType(props.row.key) === 'folder'" @click="path = props.row.key") {{ basename(props.row.key) }}
+            span(v-else) {{ basename(props.row.key) }}
 </template>
 
 <script>
@@ -47,14 +53,6 @@ export default {
       selected: [],
       columns: [
         {
-          name: 'type',
-          label: '',
-          required: false,
-          align: 'left',
-          field: row => this.getIcon(row.key),
-          sortable: true
-        },
-        {
           name: 'name',
           label: 'Name',
           required: true,
@@ -68,7 +66,7 @@ export default {
           required: true,
           align: 'right',
           field: 'size',
-          format: (val, row) => (this.getIcon(row.key) === 'folder') ? '' : format.humanStorageSize(val),
+          format: (val, row) => (this.getType(row.key) === 'folder') ? '' : format.humanStorageSize(val),
           sortable: true
         },
         {
@@ -92,6 +90,12 @@ export default {
         level: 'private'
       },
       showUploader: false
+    }
+  },
+  watch: {
+    path: function (val) {
+      this.items = []
+      this.getFiles()
     }
   },
   mounted () {
@@ -118,12 +122,6 @@ export default {
           this.loading = false
         })
     })
-  },
-  watch: {
-    path: (newPath, oldPath) => {
-      this.items = []
-      this.getFiles()
-    }
   },
   methods: {
     setPath (key = null) {
@@ -160,15 +158,66 @@ export default {
           this.newFolder = ''
         })
         .catch(err => {
-          console.error(err)
+          console.error(err) // eslint-disable-line no-console
         })
     },
-    getIcon (key) {
-      let icon = 'file'
+    getType (key) {
       if (key.slice(-1) === '/') {
-        icon = 'folder'
+        return 'folder'
       }
-      return icon
+      let images = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif'
+      ]
+      let videos = [
+        'avi',
+        'mov',
+        'mp4',
+        'mpeg',
+        'mkv',
+        'ogv'
+      ]
+      let audio = [
+        'mp3',
+        'ogg'
+      ]
+      let archive = [
+        'gz',
+        'tar',
+        'zip',
+        'deb'
+      ]
+      let text = [
+        'csv',
+        'json',
+        'txt',
+        'xml'
+      ]
+      let ext = path.extname(key).replace(/^\./, '').toLowerCase()
+      if (images.includes(ext)) {
+        return 'image'
+      }
+      if (videos.includes(ext)) {
+        return 'film'
+      }
+      if (audio.includes(ext)) {
+        return 'music'
+      }
+      if (archive.includes(ext)) {
+        return 'archive'
+      }
+      if (text.includes(ext)) {
+        return 'file-text'
+      }
+      return 'file'
+    },
+    getIcon (type) {
+      return `eva-${type}`
+    },
+    basename (key) {
+      return path.basename(key)
     }
   },
   computed: {
