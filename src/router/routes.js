@@ -30,12 +30,22 @@ const routes = [
         }
       },
       {
-        name: 'files',
-        path: 'files',
-        component: () => import('pages/Files.vue'),
+        name: 'browse',
+        path: 'browse',
+        component: () => import('pages/Browse.vue'),
         meta: {
           requiresAuth: true
-        }
+        },
+        children: [
+          {
+            path: '*',
+            component: () => import('pages/Browse.vue'),
+            props: true,
+            meta: {
+              requiresAuth: true
+            }
+          }
+        ]
       }
     ]
   }
