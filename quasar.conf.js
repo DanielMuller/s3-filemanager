@@ -95,7 +95,14 @@ module.exports = function (ctx) {
             formatter: require('eslint').CLIEngine.getFormatter('stylish')
           }
         })
-      }
+      },
+      env: ctx.dev
+        ? {
+          USER_BRANCH: JSON.stringify('dev')
+        }
+        : {
+          USER_BRANCH: JSON.stringify(process.env.USER_BRANCH)
+        }
     },
 
     devServer: {

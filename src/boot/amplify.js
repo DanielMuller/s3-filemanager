@@ -15,7 +15,7 @@ export default async ({
   Vue.prototype.$AmplifyEventBus = AmplifyEventBus
   Vue.prototype.$Auth = AmplifyModules.Auth
   let logLevel = 'INFO'
-  if (process.env.DEV) {
+  if (process.env.DEV || process.env.USER_BRANCH === 'dev') {
     logLevel = 'DEBUG'
   }
   Vue.prototype.$Logger = new AmplifyModules.Logger('app', logLevel)
