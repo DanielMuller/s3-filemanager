@@ -17,29 +17,48 @@
     )
       template(v-slot:top)
         q-breadcrumbs
-          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="setPath()")
+          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="path = ''")
           q-breadcrumbs-el.cursor-pointer(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
         q-space
         q-input(outlined dense debounce="300" color="primary" v-model="filter" placeholder="Filter")
           template(v-slot:append)
             q-icon(name="search")
+        q-checkbox.q-ml-md(dense v-model="sortFolderFirst" label="Folders first")
         q-space
         q-btn(flat dense :disable="loading" icon="eva-folder-add")
           q-popup-edit(v-model="newFolder")
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
         q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploader = !showUploader")
-        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="delete_files")
+        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="delete_selected")
       template(v-slot:body-cell-name="props")
         q-td(:props="props")
           div
-            q-icon.q-mr-xs(:name="getIcon(getType(props.row.key))" square size="1.5em")
-            span.cursor-pointer(v-if="getType(props.row.key) === 'folder'" @click="path = props.row.key") {{ basename(props.row.key) }}
+            q-icon.q-mr-xs(:name="getIcon(props.row.type)" square size="1.5em")
+            span.cursor-pointer(v-if="props.row.type === 'folder'" @click="path = props.row.key") {{ basename(props.row.key) }}
+              q-menu(
+                touch-position
+                context-menu
+              )
             span(v-else) {{ basename(props.row.key) }}
+              q-menu(
+                touch-position
+                context-menu
+              )
+                q-list(dense style="min-width: 100px")
+                  q-item(dense clickable v-close-popup v-ripple @click="download(props.row.key)")
+                    q-item-section(avatar)
+                      q-icon(name="eva-download-outline")
+                    q-item-section Download
+                  q-item(dense clickable v-close-popup v-ripple @click="delete_one(props.row.key)")
+                    q-item-section(avatar)
+                      q-icon(name="eva-close-circle-outline" color="negative")
+                    q-item-section Delete
 </template>
 
 <script>
 const path = require('path')
 import { date, format } from 'quasar'
+import S3 from 'aws-sdk/clients/s3'
 
 export default {
   name: 'Files',
@@ -51,6 +70,7 @@ export default {
       newFolder: '',
       loading: true,
       filter: '',
+      sortFolderFirst: true,
       selected: [],
       columns: [
         {
@@ -67,7 +87,7 @@ export default {
           required: true,
           align: 'right',
           field: 'size',
-          format: (val, row) => (this.getType(row.key) === 'folder') ? '' : format.humanStorageSize(val),
+          format: (val, row) => row.isFolder ? '' : format.humanStorageSize(val),
           sortable: true
         },
         {
@@ -76,7 +96,7 @@ export default {
           required: true,
           align: 'right',
           field: 'lastModified',
-          format: (val, row) => date.formatDate(val, 'YYYY-MM-DD HH:mm'),
+          format: (val, row) => row.isFolder ? '' : date.formatDate(val, 'YYYY-MM-DD HH:mm'),
           sortable: true
         }
       ],
@@ -86,66 +106,105 @@ export default {
         page: 1,
         rowsPerPage: 50
       },
-      path: 'uploads',
+      path: '',
       options: {
         level: 'private'
       },
-      showUploader: false
+      showUploader: false,
+      credentials: null
     }
   },
   watch: {
     path: function (val) {
       this.items = []
-      this.getFiles()
+      if (this.userInfo) {
+        this.listFiles()
+      }
     }
   },
   mounted () {
-    this.getFiles()
-  },
-  beforeCreate () {
     this.$Auth.currentAuthenticatedUser()
       .then(user => {
         this.user = user
         this.$Auth.currentUserInfo().then(userInfo => {
           this.userInfo = userInfo
+          this.$Auth.currentCredentials()
+            .then(credentials => {
+              this.credentials = this.$Auth.essentialCredentials(credentials)
+              this.listFiles()
+            })
         })
       })
-      .catch(err => { // eslint-disable-line handle-callback-err
+      .catch(err => {
+        this.$Logger.debug(err.message)
       })
   },
   created () {
     this.$AmplifyEventBus.$on('fileUpload', item => {
-      this.loading = true
       this.showUploader = false
-      this.$Amplify.Storage.list(item, this.options)
-        .then(res => {
-          this.items = this.items.concat(res)
-          this.loading = false
-        })
+      this.listFiles()
     })
   },
   methods: {
     setPath (key = null) {
-      if (!key) {
-        this.path = 'uploads'
+      if (key === null) {
+        this.path = ''
         return
       }
-      let newPath = this.path.slice(0, key)
-      this.$Logger.debug(newPath)
+      let newPath = `${this.path.split('/').slice(0, key + 1).join('/')}/`
+      this.$Logger.debug(`New path: ${newPath}`)
+      this.path = newPath
     },
-    getFiles () {
-      this.$Amplify.Storage.list(this.path, this.options)
-        .then(res => {
-          this.loading = false
-          this.items = this.items.concat(res)
+    listFiles () {
+      this.loading = true
+      let prefix = `private/${this.userInfo.id}/`
+      const s3 = new S3({ credentials: this.credentials })
+      let params = {
+        Bucket: this.$Amplify._config.aws_user_files_s3_bucket,
+        Prefix: `${prefix}${this.path}`,
+        Delimiter: '/'
+      }
+      s3.listObjectsV2(params).promise().then(res => {
+        let folders = res.CommonPrefixes.map(item => {
+          return {
+            key: item.Prefix.substr(prefix.length),
+            type: 'folder',
+            isFolder: true,
+            lastModified: 0,
+            lastModifiedTS: 0,
+            size: 0
+          }
         })
-        .catch(e => this.setError(e))
+        let files = res.Contents.map(item => {
+          return {
+            key: item.Key.substr(prefix.length),
+            type: this.getType(item.Key),
+            isFolder: false,
+            eTag: item.ETag,
+            lastModified: item.LastModified,
+            lastModifiedTS: date.formatDate(item.LastModified, 'X'),
+            size: item.Size
+          }
+        }).filter(item => item.key !== this.path)
+        let items = [...folders, ...files]
+        this.items = items
+        this.loading = false
+      })
+        .catch(err => {
+          this.$Logger.error(err.message)
+        })
     },
     getSelectedString () {
       return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.items.length}`
     },
-    delete_files () {
+    delete_selected () {
       this.$Logger.info(this.selected)
+    },
+    delete_one (key) {
+      this.$Logger.info(key)
+    },
+    download (key) {
+      this.$Logger.info(key)
     },
     mkdir () {
       let newPath = path.join(this.path, this.newFolder, '/')
@@ -221,19 +280,11 @@ export default {
       return path.basename(key)
     },
     customSort (rows, sortBy, descending) {
-      let data = [...rows].map(item => {
-        item.isFolder = (this.getType(item.key) === 'folder')
-        item.lastModifiedTS = date.formatDate(item.lastModified, 'X')
-        return item
-      })
+      let data = [...rows]
       if (sortBy) {
         data.sort((a, b) => {
           let x = descending ? b : a
           let y = descending ? a : b
-          // folders always first
-          if (x.isFolder !== y.isFolder) {
-            return -1
-          }
           if (sortBy === 'size') {
             return parseFloat(x.size) - parseFloat(y.size)
           } else if (sortBy === 'modified') {
@@ -243,12 +294,22 @@ export default {
           }
         })
       }
+      if (this.sortFolderFirst) {
+        data.sort((a, b) => {
+          if (a.isFolder && !b.isFolder) {
+            return -1
+          }
+          if (b.isFolder && !a.isFolder) {
+            return 1
+          }
+        })
+      }
       return data
     }
   },
   computed: {
     breadcrumbs () {
-      return this.path.split('/').slice(1)
+      return this.path.split('/').slice(0, -1)
     },
     photoPickerConfig () {
       return {
