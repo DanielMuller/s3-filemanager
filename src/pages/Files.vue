@@ -13,11 +13,12 @@
       :selected-rows-label="getSelectedString"
       selection="multiple"
       :selected.sync="selected"
+      :sort-method="customSort"
     )
       template(v-slot:top)
         q-breadcrumbs
-          q-breadcrumbs-el(label="Home" icon="eva-home" @click="setPath()")
-          q-breadcrumbs-el(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
+          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="setPath()")
+          q-breadcrumbs-el.cursor-pointer(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
         q-space
         q-input(outlined dense debounce="300" color="primary" v-model="filter" placeholder="Filter")
           template(v-slot:append)
@@ -218,6 +219,31 @@ export default {
     },
     basename (key) {
       return path.basename(key)
+    },
+    customSort (rows, sortBy, descending) {
+      let data = [...rows].map(item => {
+        item.isFolder = (this.getType(item.key) === 'folder')
+        item.lastModifiedTS = date.formatDate(item.lastModified, 'X')
+        return item
+      })
+      if (sortBy) {
+        data.sort((a, b) => {
+          let x = descending ? b : a
+          let y = descending ? a : b
+          // folders always first
+          if (x.isFolder !== y.isFolder) {
+            return -1
+          }
+          if (sortBy === 'size') {
+            return parseFloat(x.size) - parseFloat(y.size)
+          } else if (sortBy === 'modified') {
+            return parseFloat(x.lastModifiedTS) - parseFloat(y.lastModifiedTS)
+          } else {
+            return x.key > y.key ? 1 : x.key < y.key ? -1 : 0
+          }
+        })
+      }
+      return data
     }
   },
   computed: {
