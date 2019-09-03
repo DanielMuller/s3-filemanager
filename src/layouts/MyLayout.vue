@@ -115,7 +115,7 @@ export default {
           this.$AmplifyEventBus.$emit('authState', 'signedOut')
         })
         .catch(e => {
-          console.error(e.message) // eslint-disable-line no-console
+          this.$Logger.error(e.message)
         })
     }
   }

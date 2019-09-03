@@ -131,7 +131,7 @@ export default {
         return
       }
       let newPath = this.path.slice(0, key)
-      console.log(newPath)
+      this.$Logger.debug(newPath)
     },
     getFiles () {
       this.$Amplify.Storage.list(this.path, this.options)
@@ -145,7 +145,7 @@ export default {
       return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.items.length}`
     },
     delete_files () {
-      console.log(this.selected)
+      this.$Logger.info(this.selected)
     },
     mkdir () {
       let newPath = path.join(this.path, this.newFolder, '/')
@@ -159,7 +159,7 @@ export default {
           this.newFolder = ''
         })
         .catch(err => {
-          console.error(err) // eslint-disable-line no-console
+          this.$Logger.error(err)
         })
     },
     getType (key) {
