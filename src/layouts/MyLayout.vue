@@ -33,7 +33,7 @@
             q-icon(name="lock")
           q-item-section
             q-item-label Sign Out
-        q-item(v-if="signedIn" clickable :to="{name:'files'}")
+        q-item(v-if="signedIn" clickable :to="{name:'browse'}")
           q-item-section(avatar)
             q-icon(name="folder")
           q-item-section
