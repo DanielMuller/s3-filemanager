@@ -15,9 +15,10 @@
       :selected.sync="selected"
       :sort-method="customSort"
     )
+
       template(v-slot:top)
         q-breadcrumbs
-          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="path = ''")
+          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="setPath()")
           q-breadcrumbs-el.cursor-pointer(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
         q-space
         q-input(outlined dense debounce="300" color="primary" v-model="filter" placeholder="Filter")
@@ -30,6 +31,7 @@
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
         q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploader = !showUploader")
         q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="delete_selected")
+
       template(v-slot:body-cell-name="props")
         q-td(:props="props")
           div
@@ -62,6 +64,7 @@ import S3 from 'aws-sdk/clients/s3'
 
 export default {
   name: 'Files',
+  props: ['params'],
   data () {
     return {
       user: null,
@@ -207,6 +210,7 @@ export default {
       this.$Logger.info(key)
     },
     mkdir () {
+      this.showUploader = false
       let newPath = path.join(this.path, this.newFolder, '/')
       this.$Amplify.Storage.put(
         newPath,
