@@ -101,6 +101,7 @@ export default {
   },
   mounted () {
     this.getFiles()
+    console.log(process.env)
   },
   beforeCreate () {
     this.$Auth.currentAuthenticatedUser()
