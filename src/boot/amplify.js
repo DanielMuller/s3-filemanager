@@ -18,6 +18,7 @@ export default async ({
   if (process.env.DEV || process.env.USER_BRANCH === 'dev') {
     logLevel = 'DEBUG'
   }
+  Amplify.Logger.LOG_LEVEL = logLevel
   Vue.prototype.$Logger = new AmplifyModules.Logger('app', logLevel)
 
   router.beforeResolve((to, from, next) => {
