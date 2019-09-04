@@ -30,7 +30,7 @@
           q-popup-edit(v-model="newFolder")
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
         q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploader = !showUploader")
-        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="delete_selected")
+        q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="deleteSelected")
 
       template(v-slot:body-cell-name="props")
         q-td(:props="props")
@@ -52,7 +52,7 @@
                     q-item-section(avatar)
                       q-icon(name="eva-download-outline")
                     q-item-section Download
-                  q-item(dense clickable v-close-popup v-ripple @click="delete_one(props.row.key)")
+                  q-item(dense clickable v-close-popup v-ripple @click="deleteOne(props.row.key)")
                     q-item-section(avatar)
                       q-icon(name="eva-close-circle-outline" color="negative")
                     q-item-section Delete
@@ -211,10 +211,10 @@ export default {
     getSelectedString () {
       return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.items.length}`
     },
-    delete_selected () {
+    deleteSelected () {
       this.$Logger.info(this.selected)
     },
-    delete_one (key) {
+    deleteOne (key) {
       this.$Logger.info(key)
     },
     download (key) {
