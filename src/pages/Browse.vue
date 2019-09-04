@@ -64,7 +64,6 @@ import S3 from 'aws-sdk/clients/s3'
 
 export default {
   name: 'Files',
-  props: ['params'],
   data () {
     return {
       user: null,
