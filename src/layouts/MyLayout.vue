@@ -22,6 +22,12 @@
       content-class="bg-grey-2"
     )
       q-list
+        q-item-label(header v-if="signedIn") Development
+        q-item(v-if="signedIn && isDev" clickable :to="{name:'debug'}")
+          q-item-section(avatar)
+            q-icon(name="build")
+          q-item-section
+            q-item-label Debug
         q-item-label(header v-if="signedIn") Account
         q-item(v-if="signedIn" clickable :to="{name:'profile'}")
           q-item-section(avatar)
@@ -87,11 +93,13 @@ export default {
   name: 'MyLayout',
   data () {
     return {
+      isDev: false,
       leftDrawerOpen: false,
       signedIn: false
     }
   },
   created () {
+    this.isDev = process.env.DEV
     this.$AmplifyEventBus.$on('authState', authState => {
       if (authState === 'signedIn') {
         this.signedIn = true

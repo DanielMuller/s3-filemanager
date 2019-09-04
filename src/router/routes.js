@@ -30,6 +30,14 @@ const routes = [
         }
       },
       {
+        name: 'debug',
+        path: 'debug',
+        component: () => import('pages/Debug.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         name: 'browse',
         path: 'browse',
         component: () => import('pages/Browse.vue'),
