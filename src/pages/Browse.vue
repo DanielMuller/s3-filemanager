@@ -56,6 +56,14 @@
                     q-item-section(avatar)
                       q-icon(name="eva-close-circle-outline" color="negative")
                     q-item-section Delete
+    q-dialog(v-model="confirmDelete" persistent)
+      q-card
+        q-card-section.row.items-center
+          q-avatar(icon="eva-trash" color="negative" text-color="white")
+          span.q-ml-sm Your file will be permanentely deleted. Are your sure?
+        q-card-actions(align="right")
+          q-btn(flat label="Cancel" color="primary" v-close-popup)
+          q-btn(flat label="Delete" color="primary" v-close-popup @click="deleteFiles")
 </template>
 
 <script>
@@ -75,6 +83,8 @@ export default {
       filter: '',
       sortFolderFirst: true,
       selected: [],
+      confirmDelete: false,
+      toDelete: [],
       columns: [
         {
           name: 'name',
@@ -215,7 +225,17 @@ export default {
       this.$Logger.info(this.selected)
     },
     deleteOne (key) {
-      this.$Logger.info(key)
+      this.toDelete = [key]
+      this.confirmDelete = true
+    },
+    deleteFiles () {
+      this.toDelete.forEach(key => {
+        this.$Amplify.Storage.vault.remove(key).then(res => {
+          this.items = this.items.filter(item => item.key !== key)
+        })
+      })
+      this.toDelete = []
+      //      this.confirmDelete = false
     },
     download (key) {
       this.$Logger.info(key)
