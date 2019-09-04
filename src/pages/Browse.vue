@@ -46,8 +46,8 @@
               q-list(dense style="min-width: 100px")
                 q-item(v-if="props.row.type !== 'folder'" dense clickable v-close-popup v-ripple @click="download(props.row.key)")
                   q-item-section(avatar)
-                    q-icon(name="eva-download-outline")
-                  q-item-section Download
+                    q-icon(name="eva-external-link-outline")
+                  q-item-section Open or Download
                 q-item(dense clickable v-close-popup v-ripple @click="deleteOne(props.row.key)")
                   q-item-section(avatar)
                     q-icon(name="eva-close-circle-outline" color="negative")
@@ -68,7 +68,7 @@
 
 <script>
 const path = require('path')
-import { date, format } from 'quasar'
+import { date, format, openURL } from 'quasar'
 import S3 from 'aws-sdk/clients/s3'
 
 export default {
@@ -170,6 +170,7 @@ export default {
     next()
   },
   methods: {
+    openURL,
     setPath (key = null) {
       if (key === null) {
         this.path = ''
@@ -232,7 +233,7 @@ export default {
     deleteFiles () {
       let deleteIt = []
       this.toDelete.forEach(key => {
-        deleteIt.push(this.$Amplify.Storage.vault.remove(key).then(res => key))
+        deleteIt.push(this.$Amplify.Storage.remove(key, this.options).then(res => key))
       })
       Promise.all(deleteIt).then(res => {
         this.items = this.items.filter(item => res.indexOf(item.key) < 0)
@@ -241,7 +242,13 @@ export default {
       })
     },
     download (key) {
-      this.$Logger.info(key)
+      let options = Object.assign({}, this.options, { download: false, expires: 60 })
+      this.$Amplify.Storage.get(key, options).then(url => {
+        openURL(url)
+      })
+        .catch(err => {
+          this.$Logger.error(err)
+        })
     },
     mkdir () {
       this.showUploader = false
