@@ -49,6 +49,7 @@ module.exports = function (ctx) {
         'QExpansionItem',
         'QCard',
         'QCardSection',
+        'QCardActions',
         'QBreadcrumbs',
         'QBreadcrumbsEl',
         'QSpace',
@@ -59,7 +60,8 @@ module.exports = function (ctx) {
         'QInput',
         'QPopupEdit',
         'QCheckbox',
-        'QMenu'
+        'QMenu',
+        'QDialog'
       ],
 
       directives: [
