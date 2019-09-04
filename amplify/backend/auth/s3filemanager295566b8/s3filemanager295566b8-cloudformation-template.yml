@@ -150,7 +150,13 @@ Resources:
       
       
       AutoVerifiedAttributes: !Ref autoVerifiedAttributes
-      
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: True
+        InviteMessageTemplate:
+          EmailMessage: Your user name is {username} and temporary password is {####}
+          EmailSubject: You have been invited to our transfer manager
+          SMSMessage: Your user name is {username} and temporary password is {####}
+        UnusedAccountValidityDays: 7
       
       EmailVerificationMessage: !Ref emailVerificationMessage
       EmailVerificationSubject: !Ref emailVerificationSubject
