@@ -60,7 +60,11 @@
       q-card
         q-card-section.row.items-center
           q-avatar(icon="eva-trash" color="negative" text-color="white")
-          span.q-ml-sm Your file will be permanentely deleted. Are your sure?
+          span.q-ml-sm(v-if="toDelete.length === 1") The file <span class="text-bold">{{this.toDelete[0]}}</span> will be permanentely deleted. Are your sure?
+          span.q-ml-sm(v-else) The files
+            ul
+              li.text-bold(v-for="key in toDelete") {{key}}
+            span will be permanentely deleted. Are your sure?
         q-card-actions(align="right")
           q-btn(flat label="Cancel" color="primary" v-close-popup)
           q-btn(flat label="Delete" color="primary" v-close-popup @click="deleteFiles")
@@ -222,20 +226,22 @@ export default {
       return this.selected.length === 0 ? '' : `${this.selected.length} record${this.selected.length > 1 ? 's' : ''} selected of ${this.items.length}`
     },
     deleteSelected () {
-      this.$Logger.info(this.selected)
+      this.toDelete = this.selected.map(item => item.key)
+      this.confirmDelete = true
     },
     deleteOne (key) {
       this.toDelete = [key]
       this.confirmDelete = true
     },
     deleteFiles () {
+      let deleteIt = []
       this.toDelete.forEach(key => {
-        this.$Amplify.Storage.vault.remove(key).then(res => {
-          this.items = this.items.filter(item => item.key !== key)
-        })
+        deleteIt.push(this.$Amplify.Storage.vault.remove(key).then(res => key))
       })
-      this.toDelete = []
-      //      this.confirmDelete = false
+      Promise.all(deleteIt).then(res => {
+        this.items = this.items.filter(item => res.indexOf(item.key) < 0)
+        this.toDelete = []
+      })
     },
     download (key) {
       this.$Logger.info(key)
