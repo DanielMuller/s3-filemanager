@@ -18,8 +18,8 @@
 
       template(v-slot:top)
         q-breadcrumbs
-          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" @click="setPath()")
-          q-breadcrumbs-el.cursor-pointer(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" @click="setPath(key)")
+          q-breadcrumbs-el.cursor-pointer(label="Home" icon="eva-home" to="/browse")
+          q-breadcrumbs-el.cursor-pointer(v-for="item,key in breadcrumbs" :key="item" :label="item" icon="folder" :to="setPath(key)")
         q-space
         q-input(outlined dense debounce="300" color="primary" v-model="filter" placeholder="Filter")
           template(v-slot:append)
@@ -36,11 +36,12 @@
         q-td(:props="props")
           div
             q-icon.q-mr-xs(:name="getIcon(props.row.type)" square size="1.5em")
-            span.cursor-pointer(v-if="props.row.type === 'folder'" @click="path = props.row.key") {{ basename(props.row.key) }}
-              q-menu(
-                touch-position
-                context-menu
-              )
+            span.cursor-pointer(v-if="props.row.type === 'folder'")
+              router-link(tag="span" :to="`/browse/${props.row.key}`") {{ basename(props.row.key) }}
+                q-menu(
+                  touch-position
+                  context-menu
+                )
             span(v-else) {{ basename(props.row.key) }}
               q-menu(
                 touch-position
@@ -140,12 +141,23 @@ export default {
       .catch(err => {
         this.$Logger.debug(err.message)
       })
+    if (this.$route && this.$route.params && this.$route.params.pathMatch) {
+      this.path = this.$route.params.pathMatch
+    }
   },
   created () {
     this.$AmplifyEventBus.$on('fileUpload', item => {
       this.showUploader = false
       this.listFiles()
     })
+  },
+  beforeRouteUpdate (to, from, next) {
+    if (to && to.params && to.params.pathMatch) {
+      this.path = to.params.pathMatch
+    } else {
+      this.path = ''
+    }
+    next()
   },
   methods: {
     setPath (key = null) {
@@ -155,7 +167,7 @@ export default {
       }
       let newPath = `${this.path.split('/').slice(0, key + 1).join('/')}/`
       this.$Logger.debug(`New path: ${newPath}`)
-      this.path = newPath
+      return `/browse/${newPath}`
     },
     listFiles () {
       this.loading = true
