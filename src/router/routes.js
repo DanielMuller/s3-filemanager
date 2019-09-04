@@ -40,7 +40,6 @@ const routes = [
           {
             path: '*',
             component: () => import('pages/Browse.vue'),
-            props: true,
             meta: {
               requiresAuth: true
             }
