@@ -38,24 +38,20 @@
             q-icon.q-mr-xs(:name="getIcon(props.row.type)" square size="1.5em")
             span.cursor-pointer(v-if="props.row.type === 'folder'")
               router-link(tag="span" :to="`/browse/${props.row.key}`") {{ basename(props.row.key) }}
-                q-menu(
-                  touch-position
-                  context-menu
-                )
             span(v-else) {{ basename(props.row.key) }}
-              q-menu(
-                touch-position
-                context-menu
-              )
-                q-list(dense style="min-width: 100px")
-                  q-item(dense clickable v-close-popup v-ripple @click="download(props.row.key)")
-                    q-item-section(avatar)
-                      q-icon(name="eva-download-outline")
-                    q-item-section Download
-                  q-item(dense clickable v-close-popup v-ripple @click="deleteOne(props.row.key)")
-                    q-item-section(avatar)
-                      q-icon(name="eva-close-circle-outline" color="negative")
-                    q-item-section Delete
+            q-menu(
+              touch-position
+              context-menu
+            )
+              q-list(dense style="min-width: 100px")
+                q-item(v-if="props.row.type !== 'folder'" dense clickable v-close-popup v-ripple @click="download(props.row.key)")
+                  q-item-section(avatar)
+                    q-icon(name="eva-download-outline")
+                  q-item-section Download
+                q-item(dense clickable v-close-popup v-ripple @click="deleteOne(props.row.key)")
+                  q-item-section(avatar)
+                    q-icon(name="eva-close-circle-outline" color="negative")
+                  q-item-section Delete
     q-dialog(v-model="confirmDelete" persistent)
       q-card
         q-card-section.row.items-center
@@ -241,6 +237,7 @@ export default {
       Promise.all(deleteIt).then(res => {
         this.items = this.items.filter(item => res.indexOf(item.key) < 0)
         this.toDelete = []
+        this.selected = []
       })
     },
     download (key) {
