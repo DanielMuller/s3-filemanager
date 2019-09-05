@@ -1,6 +1,5 @@
 <template lang="pug">
   q-page(padding)
-    amplify-photo-picker(v-if="showUploader" v-bind:photoPickerConfig="photoPickerConfig").q-mb-md
     q-table(
       :dense="$q.screen.lt.md"
       :data="items"
@@ -29,7 +28,7 @@
         q-btn(flat dense :disable="loading" icon="eva-folder-add")
           q-popup-edit(v-model="newFolder")
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
-        q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploader = !showUploader")
+        q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploadManager = !showUploadManager")
         q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="deleteSelected")
 
       template(v-slot:body-cell-name="props")
@@ -123,7 +122,6 @@ export default {
       options: {
         level: 'private'
       },
-      showUploader: false,
       credentials: null
     }
   },
@@ -356,15 +354,12 @@ export default {
     breadcrumbs () {
       return this.path.split('/').slice(0, -1)
     },
-    photoPickerConfig () {
-      return {
-        storageOptions: {
-          level: 'private',
-          metadata: {
-            owner: this.user.username
-          }
-        },
-        path: this.path
+    showUploadManager: {
+      get () {
+        return this.$store.state.uploadManager.display
+      },
+      set (val) {
+        this.$store.commit('uploadManager/display', val)
       }
     }
   }
