@@ -61,7 +61,8 @@ module.exports = function (ctx) {
         'QPopupEdit',
         'QCheckbox',
         'QMenu',
-        'QDialog'
+        'QDialog',
+        'QTooltip'
       ],
 
       directives: [
