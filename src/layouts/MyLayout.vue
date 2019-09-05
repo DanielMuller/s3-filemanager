@@ -1,5 +1,5 @@
 <template lang="pug">
-  q-layout(view="lHh Lpr lFf")
+  q-layout(view="lHh LpR lFf")
     q-header(elevated)
       q-toolbar
         q-btn(
@@ -20,40 +20,57 @@
       show-if-above
       bordered
       content-class="bg-grey-2"
+      side="left"
     )
-      q-list
-        q-item-label(header v-if="signedIn") Development
+      q-list(v-if="signedIn")
+        q-item-label(header) Development
         q-item(v-if="signedIn && isDev" clickable :to="{name:'debug'}")
           q-item-section(avatar)
             q-icon(name="build")
           q-item-section
             q-item-label Debug
-        q-item-label(header v-if="signedIn") Account
+        q-item-label(header) Account
         q-item(v-if="signedIn" clickable :to="{name:'profile'}")
           q-item-section(avatar)
             q-icon(name="account_box")
           q-item-section
             q-item-label Profile
-        q-item(v-if="signedIn" clickable @click="signOut")
+        q-item(clickable @click="signOut")
           q-item-section(avatar)
             q-icon(name="lock")
           q-item-section
             q-item-label Sign Out
-        q-item(v-if="signedIn" clickable :to="{name:'browse'}")
+        q-item(clickable :to="{name:'browse'}")
           q-item-section(avatar)
             q-icon(name="folder")
           q-item-section
             q-item-label My Files
+        q-item(clickable @click="showUploadManager = !showUploadManager")
+          q-item-section(avatar)
+            q-icon(name="cloud_upload")
+          q-item-section
+            q-item-label Upload Manager
+
+    q-drawer(
+      v-model="showUploadManager"
+      bordered
+      elevated
+      persistent
+      side="right"
+    )
+      upload-manager
 
     q-page-container
       router-view
 </template>
 
 <script>
-import { openURL } from 'quasar'
-
+import UploadManager from 'components/UploadManager'
 export default {
   name: 'MyLayout',
+  components: {
+    UploadManager
+  },
   data () {
     return {
       isDev: false,
@@ -79,7 +96,6 @@ export default {
       })
   },
   methods: {
-    openURL,
     signOut: function (event) {
       this.$Amplify.Auth.signOut()
         .then(() => {
@@ -88,6 +104,16 @@ export default {
         .catch(e => {
           this.$Logger.error(e.message)
         })
+    }
+  },
+  computed: {
+    showUploadManager: {
+      get () {
+        return this.$store.state.uploadManager.display
+      },
+      set (val) {
+        this.$store.commit('uploadManager/display', val)
+      }
     }
   }
 }
