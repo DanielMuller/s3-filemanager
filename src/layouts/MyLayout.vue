@@ -57,6 +57,7 @@
       elevated
       persistent
       side="right"
+      :width="350"
     )
       upload-manager
 

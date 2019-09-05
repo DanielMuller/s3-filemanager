@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 // we first import the module
 import uploadManager from './uploadManager'
+import fileBrowser from './fileBrowser'
 
 Vue.use(Vuex)
 
@@ -10,7 +11,8 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       // then we reference it
-      uploadManager
+      uploadManager,
+      fileBrowser
     },
 
     // enable strict mode (adds overhead!)
@@ -26,9 +28,10 @@ export default function (/* { ssrContext } */) {
   */
 
   if (process.env.DEV && module.hot) {
-    module.hot.accept(['./uploadManager'], () => {
+    module.hot.accept(['./uploadManager', './fileBrowser'], () => {
       const newUploadManager = require('./uploadManager').default
-      Store.hotUpdate({ modules: { uploadManager: newUploadManager } })
+      const newFileBrowser = require('./fileBrowser').default
+      Store.hotUpdate({ modules: { uploadManager: newUploadManager, fileBrowser: newFileBrowser } })
     })
   }
 

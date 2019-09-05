@@ -28,7 +28,7 @@
         q-btn(flat dense :disable="loading" icon="eva-folder-add")
           q-popup-edit(v-model="newFolder")
             q-input(v-model="newFolder" dense autofocus @keyup.enter="mkdir")
-        q-btn(flat dense :disable="loading" icon="eva-file-add" @click="showUploadManager = !showUploadManager")
+        q-btn(flat dense :disable="loading" icon="eva-file-add" @click="addFiles")
         q-btn(v-if="selected.length > 0" flat dense :disable="loading" icon="eva-trash" @click="deleteSelected")
 
       template(v-slot:body-cell-name="props")
@@ -118,7 +118,6 @@ export default {
         page: 1,
         rowsPerPage: 50
       },
-      path: '',
       options: {
         level: 'private'
       },
@@ -348,6 +347,9 @@ export default {
         })
       }
       return data
+    },
+    addFiles () {
+      this.showUploadManager = true
     }
   },
   computed: {
@@ -360,6 +362,14 @@ export default {
       },
       set (val) {
         this.$store.commit('uploadManager/display', val)
+      }
+    },
+    path: {
+      get () {
+        return this.$store.state.fileBrowser.path
+      },
+      set (val) {
+        this.$store.commit('fileBrowser/path', val)
       }
     }
   }
