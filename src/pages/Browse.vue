@@ -349,6 +349,7 @@ export default {
     },
     addFiles () {
       this.showUploadManager = true
+      this.$AmplifyEventBus.$emit('addFile', this.path)
     }
   },
   computed: {
