@@ -150,6 +150,18 @@ export default {
     if (this.$route && this.$route.params && this.$route.params.pathMatch) {
       this.path = this.$route.params.pathMatch
     }
+    this.$AmplifyEventBus.$on('newItem', file => {
+      let item = {
+        key: file.displayKey,
+        size: file.size,
+        isFolder: false,
+        eTag: null,
+        lastModified: file.lastModified,
+        lastModifiedTS: date.formatDate(file.LastModified, 'X'),
+        type: this.getType(file.key)
+      }
+      this.items.unshift(item)
+    })
   },
   created () {
     this.$AmplifyEventBus.$on('fileUpload', item => {
