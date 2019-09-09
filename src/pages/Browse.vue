@@ -8,7 +8,6 @@
       :pagination.sync="pagination"
       :loading="loading"
       :filter="filter"
-      :grid="$q.screen.xs"
       :selected-rows-label="getSelectedString"
       selection="multiple"
       :selected.sync="selected"
