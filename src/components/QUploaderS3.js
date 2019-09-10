@@ -83,7 +83,7 @@ export default {
             this.uploadedSize += file.size
             this.workingThreads--
             this.__updateFile(file, 'uploaded')
-            console.log('file', file)
+            this.$AmplifyEventBus.$emit('newItem', file)
           })
       })
     }
