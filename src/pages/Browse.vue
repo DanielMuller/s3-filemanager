@@ -267,7 +267,7 @@ export default {
         this.options
       )
         .then((result) => {
-          this.path = newPath
+          this.$router.push(`/browse/${newPath}`)
           this.newFolder = ''
         })
         .catch(err => {
