@@ -14,10 +14,35 @@
       @added="added"
       @uploaded="uploaded"
     )
+      template(v-slot:list="scope")
+        q-list(separator)
+          q-item(v-for="file in scope.files" :key="file.name")
+            q-item-section
+              q-item-label.full-width.ellipsis {{ file.name }}
+              q-item-label.ellipsis(caption) {{ file.displayKey }}
+              q-item-label(caption) {{sizeLabel(file.__uploaded)}}/{{ file.__sizeLabel }} ({{ file.__progressLabel }})
+              q-item-label
+                q-linear-progress(
+                  size="md"
+                  :value="file.__progress"
+                  color="primary"
+                )
+            q-item-section(top side)
+              q-btn.gt-xs(
+                size="12px"
+                flat
+                dense
+                round
+                icon="delete"
+                @click="scope.removeFile(file)"
+              )
 </template>
 
 <script>
 import QUploaderS3 from './QUploaderS3'
+import { format } from 'quasar'
+const { humanStorageSize } = format
+
 export default {
   name: 'UploadManager',
   data () {
@@ -34,7 +59,7 @@ export default {
     added (files) {
       files.forEach(file => {
         file.key = `${this.prefix}${this.uploadPath}${file.name}`
-        file.displayKey = `${this.uploadPath}${file.name}`
+        file.displayKey = `/${this.uploadPath}${file.name}`
         file.dstPath = `${this.uploadPath}`
       })
     },
@@ -42,6 +67,9 @@ export default {
       if (file.dstPath === this.uploadPath) {
         this.$AmplifyEventBus.$emit('newItem', file)
       }
+    },
+    sizeLabel (size) {
+      return humanStorageSize(size)
     }
   },
   computed: {
