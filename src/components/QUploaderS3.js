@@ -27,22 +27,12 @@ export default {
   },
   mixins: [ QUploaderBase ],
   computed: {
-    // [REQUIRED]
-    // we're working on uploading files
     isUploading () {
       return this.workingThreads > 0
-      // return <Boolean>
     },
 
-    // [optional]
-    // shows overlay on top of the
-    // uploader signaling it's waiting
-    // on something (blocks all controls)
     isBusy () {
       return this.workingThreads > 0
-      //      return false
-      // return this.promises.length > 0
-      // return <Boolean>
     }
   },
 
@@ -78,12 +68,16 @@ export default {
         })
           .send((err, data) => {
             if (err) {
-              console.log(err)
+              this.$Logger.error(err.message)
+              this.workingThreads--
+              this.__updateFile(file, 'failed')
+            } else {
+              this.uploadedFiles = this.uploadedFiles.concat([file])
+              this.uploadedSize += file.size
+              this.workingThreads--
+              this.__updateFile(file, 'uploaded')
+              this.$AmplifyEventBus.$emit('newItem', file)
             }
-            this.uploadedSize += file.size
-            this.workingThreads--
-            this.__updateFile(file, 'uploaded')
-            this.$AmplifyEventBus.$emit('newItem', file)
           })
       })
     }
