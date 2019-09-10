@@ -1,84 +1,201 @@
 import { QUploaderBase } from 'quasar'
 import S3 from 'aws-sdk/clients/s3'
 
+function getFn (prop) {
+  return typeof prop === 'function'
+    ? prop
+    : () => prop
+}
+
 export default {
   name: 'QUploaderS3',
+  mixins: [ QUploaderBase ],
   props: {
-    prefix: [Function, String],
-    path: [Function, String],
     contentType: [Function, String],
     cacheControl: [Function, String],
     metadata: [Function, Array],
-    credentials: Object,
-    bucket: String,
-    s3UploadOptions: {
-      type: Object,
-      default: {
-        partSize: 5 * 1024 * 1024,
-        queueSize: 4
-      }
-    },
+    credentials: [Function, Object],
+    bucket: [Function, String],
+    path: [Function, String],
+    options: [Function, Object],
     factory: Function
   },
+
   data () {
     return {
+      uploaders: [],
+      promises: [],
       workingThreads: 0
     }
   },
-  mixins: [ QUploaderBase ],
+
   computed: {
+    uploaderProps () {
+      return {
+        contentType: getFn(this.contentType),
+        cacheControl: getFn(this.cacheControl),
+        metadata: getFn(this.metadata),
+        credentials: getFn(this.credentials),
+        bucket: getFn(this.bucket),
+        path: getFn(this.path),
+        options: getFn(this.options)
+      }
+    },
+
     isUploading () {
       return this.workingThreads > 0
     },
 
     isBusy () {
-      return this.workingThreads > 0
+      return this.promises.length > 0
     }
   },
 
   methods: {
-    // [REQUIRED]
-    // abort and clean up any process
-    // that is in progress
     abort () {
-      console.log('abort')
-      // ...
+      this.uploaders.forEach(x => { x.abort() })
+
+      if (this.promises.length > 0) {
+        this.abortPromises = true
+      }
     },
 
-    // [REQUIRED]
     upload () {
       if (this.canUpload === false) {
         return
       }
-      const s3 = new S3({ credentials: this.credentials, useAccelerateEndpoint: false })
+
       const queue = this.queuedFiles.slice(0)
       this.queuedFiles = []
 
       queue.forEach(file => {
-        this.workingThreads++
-        let params = {
-          Bucket: this.bucket,
-          Key: file.key,
-          ContentType: file.type,
-          Body: file
-        }
-        let options = this.s3UploadOptions
-        s3.upload(params, options).on('httpUploadProgress', (evt) => {
-          this.__updateFile(file, 'uploading', evt.loaded)
-        })
-          .send((err, data) => {
-            if (err) {
-              this.$Logger.error(err.message)
-              this.workingThreads--
-              this.__updateFile(file, 'failed')
-            } else {
-              this.uploadedFiles = this.uploadedFiles.concat([file])
-              this.uploadedSize += file.size
-              this.workingThreads--
-              this.__updateFile(file, 'uploaded')
-              this.$AmplifyEventBus.$emit('newItem', file)
+        this.__runFactory(file)
+      })
+    },
+
+    __runFactory (file) {
+      this.workingThreads++
+
+      if (typeof this.factory !== 'function') {
+        this.__uploadFile(file, {})
+        return
+      }
+
+      const res = this.factory(file)
+
+      if (!res) {
+        this.$emit(
+          'factory-failed',
+          new Error('QUploader: factory() does not return properly'),
+          file
+        )
+        this.workingThreads--
+      } else if (typeof res.catch === 'function' && typeof res.then === 'function') {
+        this.promises.push(res)
+
+        const failed = err => {
+          if (this._isBeingDestroyed !== true && this._isDestroyed !== true) {
+            this.promises = this.promises.filter(p => p !== res)
+
+            if (this.promises.length === 0) {
+              this.abortPromises = false
             }
-          })
+
+            this.queuedFiles = this.queuedFiles.concat(file)
+            this.__updateFile(file, 'failed')
+
+            this.$emit('factory-failed', err, file)
+            this.workingThreads--
+          }
+        }
+
+        res.then(factory => {
+          if (this.abortPromises === true) {
+            failed(new Error('Aborted'))
+          } else if (this._isBeingDestroyed !== true && this._isDestroyed !== true) {
+            this.promises = this.promises.filter(p => p !== res)
+            this.__uploadFile(file, factory)
+          }
+        }).catch(failed)
+      } else {
+        this.__uploadFile(file, res || {})
+      }
+    },
+    __uploadFile (file, factory) {
+      const getProp = (name, arg) => {
+        return factory[name] !== void 0
+          ? getFn(factory[name])(arg)
+          : this.uploaderProps[name](arg)
+      }
+      const credentials = getProp('credentials', file)
+      const s3 = new S3({ credentials: credentials, useAccelerateEndpoint: false })
+
+      const bucket = getProp('bucket', file)
+      const path = getProp('path', file)
+      const contentType = getProp('contentType', file)
+      const options = getProp('options', file)
+
+      if (!path) {
+        this.$Logger.error('q-uploader-s3: invalid or no Key specified')
+        this.workingThreads--
+        return
+      }
+      const uploader = s3.upload({
+        Bucket: bucket,
+        Key: path,
+        Body: file,
+        ContentType: contentType
+      },
+      options)
+
+      let
+        uploadIndexSize = 0,
+        uploadedSize = 0,
+        maxUploadSize = 0,
+        aborted
+
+      uploader.on('httpUploadProgress', e => {
+        if (aborted === true) { return }
+
+        const loaded = Math.min(maxUploadSize, e.loaded)
+
+        this.uploadedSize += loaded - uploadedSize
+        uploadedSize = loaded
+
+        let size = uploadedSize - uploadIndexSize
+        let uploaded = size > file.size
+        if (uploaded) {
+          size -= file.size
+          uploadIndexSize += file.size
+          this.__updateFile(file, 'uploading', file.size)
+        } else {
+          this.__updateFile(file, 'uploading', size)
+        }
+      })
+
+      this.__updateFile(file, 'uploading', 0)
+      file.uploader = uploader
+      file.__abort = uploader.abort
+      maxUploadSize += file.size
+
+      this.$emit('uploading', { file, uploader })
+      this.uploaders.push(uploader)
+
+      uploader.send((err, data) => {
+        if (err) {
+          this.$Logger.error(err.message)
+          aborted = true
+          this.uploadedSize -= uploadedSize
+          this.queuedFiles = this.queuedFiles.concat(file)
+          this.__updateFile(file, 'failed')
+          this.$emit('failed', { file, uploader })
+        } else {
+          this.uploadedFiles = this.uploadedFiles.concat(file)
+          this.__updateFile(file, 'uploaded')
+          this.$emit('uploaded', { file, uploader })
+        }
+        this.workingThreads--
+        this.uploaders = this.uploaders.filter(x => x !== uploader)
       })
     }
   }

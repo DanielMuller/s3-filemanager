@@ -10,7 +10,8 @@
       text-color="black"
       :credentials="credentials"
       :bucket="bucket"
-      :s3UploadOptions="uploadOptions"
+      :contentType="contentType"
+      :path="dstKey"
       @added="added"
       @uploaded="uploaded"
     )
@@ -63,13 +64,19 @@ export default {
         file.dstPath = `${this.uploadPath}`
       })
     },
-    uploaded (file) {
+    uploaded ({ file, uploader }) {
       if (file.dstPath === this.uploadPath) {
         this.$AmplifyEventBus.$emit('newItem', file)
       }
     },
     sizeLabel (size) {
       return humanStorageSize(size)
+    },
+    dstKey (file) {
+      return `${this.prefix}${this.uploadPath}${file.name}`
+    },
+    contentType (file) {
+      return file.type
     }
   },
   computed: {
