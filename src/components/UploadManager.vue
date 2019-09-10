@@ -16,7 +16,7 @@
     )
       template(v-slot:list="scope")
         q-list(separator)
-          q-item(v-for="file in scope.files" :key="file.name")
+          q-item.q-uploader__file(v-for="file in scope.files" :key="file.name")
             q-item-section
               q-item-label.full-width.ellipsis {{ file.name }}
               q-item-label.ellipsis(caption) {{ file.displayKey }}
@@ -33,7 +33,7 @@
                 flat
                 dense
                 round
-                icon="delete"
+                icon="clear"
                 @click="scope.removeFile(file)"
               )
 </template>
