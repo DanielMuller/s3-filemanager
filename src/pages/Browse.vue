@@ -158,7 +158,7 @@ export default {
         eTag: null,
         lastModified: file.lastModified,
         lastModifiedTS: date.formatDate(file.LastModified, 'X'),
-        type: this.getType(file.key)
+        type: this.getType(file.dstKey)
       }
       this.items.unshift(item)
     })
@@ -244,7 +244,8 @@ export default {
         deleteIt.push(this.$Amplify.Storage.remove(key, this.options).then(res => key))
       })
       Promise.all(deleteIt).then(res => {
-        this.items = this.items.filter(item => res.indexOf(item.key) < 0)
+        // this.items = this.items.filter(item => res.indexOf(item.key) < 0)
+        this.listFiles()
         this.toDelete = []
         this.selected = []
       })

@@ -16,7 +16,6 @@ export default {
     metadata: [Function, Array],
     credentials: [Function, Object],
     bucket: [Function, String],
-    path: [Function, String],
     options: [Function, Object],
     factory: Function
   },
@@ -37,7 +36,6 @@ export default {
         metadata: getFn(this.metadata),
         credentials: getFn(this.credentials),
         bucket: getFn(this.bucket),
-        path: getFn(this.path),
         options: getFn(this.options)
       }
     },
@@ -131,18 +129,11 @@ export default {
       const s3 = new S3({ credentials: credentials, useAccelerateEndpoint: false })
 
       const bucket = getProp('bucket', file)
-      const path = getProp('path', file)
       const contentType = getProp('contentType', file)
       const options = getProp('options', file)
-
-      if (!path) {
-        this.$Logger.error('q-uploader-s3: invalid or no Key specified')
-        this.workingThreads--
-        return
-      }
       const uploader = s3.upload({
         Bucket: bucket,
-        Key: path,
+        Key: file.dstKey,
         Body: file,
         ContentType: contentType
       },
