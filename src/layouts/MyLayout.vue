@@ -23,7 +23,7 @@
       side="left"
     )
       q-list(v-if="signedIn")
-        q-item-label(header) Development
+        q-item-label(v-if="isDev" header) Development
         q-item(v-if="signedIn && isDev" clickable :to="{name:'debug'}")
           q-item-section(avatar)
             q-icon(name="build")
