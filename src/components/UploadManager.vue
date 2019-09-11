@@ -11,7 +11,6 @@
       :credentials="credentials"
       :bucket="bucket"
       :contentType="contentType"
-      :path="dstKey"
       @added="added"
       @uploaded="uploaded"
     )
@@ -59,7 +58,7 @@ export default {
   methods: {
     added (files) {
       files.forEach(file => {
-        file.key = `${this.prefix}${this.uploadPath}${file.name}`
+        file.dstKey = `${this.prefix}${this.uploadPath}${file.name}`
         file.displayKey = `/${this.uploadPath}${file.name}`
         file.dstPath = `${this.uploadPath}`
       })
@@ -93,7 +92,9 @@ export default {
   },
   created () {
     this.$AmplifyEventBus.$on('addFile', addFile => {
-      this.$refs.uploadManager.pickFiles()
+      if (this.$refs.uploadManager) {
+        this.$refs.uploadManager.pickFiles()
+      }
     })
   },
   mounted () {
