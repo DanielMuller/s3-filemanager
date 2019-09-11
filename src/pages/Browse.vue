@@ -152,7 +152,7 @@ export default {
     }
     this.$AmplifyEventBus.$on('newItem', file => {
       let item = {
-        key: file.displayKey,
+        key: file.displayKey.replace(/^\//, ''),
         size: file.size,
         isFolder: false,
         eTag: null,
