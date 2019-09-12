@@ -57,7 +57,24 @@ export default {
         this.abortPromises = true
       }
     },
+    pauseFile (file) {
+      if (this.disable) { return }
 
+      if (file.__status === 'uploading') {
+        file.__abort()
+        this.$emit('paused', [ file ])
+        this.__updateFile(file, 'paused', file.__uploaded)
+      }
+    },
+    resumeFile (file) {
+      if (this.disable) { return }
+
+      if (file.__status === 'paused') {
+        // file.uploader.send()
+        this.upload()
+        this.$emit('resume', [ file ])
+      }
+    },
     upload () {
       if (this.canUpload === false) {
         return
@@ -166,7 +183,7 @@ export default {
 
       this.__updateFile(file, 'uploading', 0)
       file.uploader = uploader
-      file.__abort = uploader.abort
+      file.__abort = uploader.abort.bind(uploader)
       maxUploadSize += file.size
 
       this.$emit('uploading', { file, uploader })

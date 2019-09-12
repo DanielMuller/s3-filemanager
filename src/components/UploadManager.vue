@@ -36,6 +36,32 @@
                 icon="clear"
                 @click="scope.removeFile(file)"
               )
+              q-btn.gt-xs(
+                v-if="file.__status==='uploading'"
+                size="12px"
+                flat
+                dense
+                round
+                icon="pause"
+                @click="scope.pauseFile(file)"
+              )
+              q-btn.gt-xs(
+                v-else-if="file.__status==='paused' && scope.canUpload"
+                size="12px"
+                flat
+                dense
+                round
+                icon="play_arrow"
+                @click="scope.resumeFile(file)"
+              )
+              q-btn.gt-xs.no-pointer-events(
+                v-else-if="file.__status==='paused' && !scope.canUpload"
+                size="12px"
+                flat
+                dense
+                round
+                icon="hourglass_empty"
+              )
 </template>
 
 <script>
