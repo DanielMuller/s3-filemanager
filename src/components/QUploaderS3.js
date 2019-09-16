@@ -75,6 +75,24 @@ export default {
         this.$emit('resume', [ file ])
       }
     },
+    removeUploadedFiles () {
+      if (!this.disable) {
+        const removedFiles = []
+
+        this.files.forEach(file => {
+          if (file.__status === 'uploaded') {
+            this.uploadSize -= file.size
+            removedFiles.push(file)
+          }
+        })
+        if (removedFiles.length > 0) {
+          this.files = this.files.filter(f => f.__status !== 'uploaded')
+          this.$emit('removed', removedFiles)
+          this.uploadedSize = 0
+          this.uploadedFiles = []
+        }
+      }
+    },
     upload () {
       if (this.canUpload === false) {
         return
