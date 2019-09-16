@@ -12,17 +12,17 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
-    "aws-amplify": "^1.1.36",
-    "aws-amplify-vue": "^0.2.14",
-    "aws-sdk": "^2.521.0",
+    "aws-amplify": "^1.1.40",
+    "aws-amplify-vue": "^0.2.17",
+    "aws-sdk": "^2.528.0",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.6",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
-    "eslint-loader": "^2.2.1",
+    "eslint": "^6.4.0",
+    "eslint-loader": "^3.0.0",
     "eslint-plugin-vue": "^5.0.0",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.0.0"
