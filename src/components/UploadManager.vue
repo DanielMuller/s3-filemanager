@@ -11,6 +11,7 @@
       :credentials="credentials"
       :bucket="bucket"
       :contentType="contentType"
+      :options="uploadOptions"
       @added="added"
       @uploaded="uploaded"
     )
