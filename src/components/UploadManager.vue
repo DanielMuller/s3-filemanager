@@ -14,6 +14,33 @@
       @added="added"
       @uploaded="uploaded"
     )
+      template(v-slot:header="scope")
+        .row.no-wrap.items-center.q-pa-sm.q-gutter-xs
+          q-btn(v-if="scope.queuedFiles.length > 0" icon="clear_all" @click="scope.removeQueuedFiles" round dense flat)
+            q-tooltip Clear All
+          q-btn(v-if="scope.uploadedFiles.length > 0" icon="done_all" @click="scope.removeUploadedFiles" round dense flat)
+            q-tooltip Remove Uploaded Files
+          q-spinner(v-if="scope.isUploading" class="q-uploader__spinner")
+          .col
+            .q-uploader__subtitle {{ scope.uploadSizeLabel }} / {{ scope.uploadedSizeLabel }} ({{ scope.uploadProgressLabel }})
+            q-linear-progress(
+              size="md"
+              :value="scope.uploadProgress"
+              color="primary"
+            )
+            .q-uploader__subtitle {{ scope.uploadedFiles.length }} / {{ scope.files.length }}
+            q-linear-progress(
+              size="md"
+              :value="uploadProgressFiles(scope)"
+              color="primary"
+            )
+          q-btn.hidden(v-if="scope.canAddFiles" type="a" icon="add_box" round dense flat)
+            q-uploader-add-trigger
+            q-tooltip Pick Files
+          q-btn(v-if="scope.canUpload" icon="cloud_upload" @click="scope.upload" round dense flat)
+            q-tooltip Upload Files
+          q-btn(v-if="scope.isUploading" icon="clear" @click="scope.abort" round dense flat)
+            q-tooltip Abort Upload
       template(v-slot:list="scope")
         q-list(separator)
           q-item.q-uploader__file(v-for="file in scope.files" :key="file.name")
@@ -93,6 +120,11 @@ export default {
       if (file.dstPath === this.uploadPath) {
         this.$AmplifyEventBus.$emit('newItem', file)
       }
+    },
+    uploadProgressFiles (scope) {
+      return scope.files.length === 0
+        ? 0
+        : scope.uploadedFiles.length / scope.files.length
     },
     sizeLabel (size) {
       return humanStorageSize(size)
