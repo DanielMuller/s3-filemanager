@@ -16,7 +16,8 @@
       @uploaded="uploaded"
     )
       template(v-slot:header="scope")
-        .row.no-wrap.items-center.q-pa-sm.q-gutter-xs
+        q-uploader-add-trigger
+        .row.no-wrap.items-center.q-pa-sm.q-gutter-xs(v-if="scope.queuedFiles.length > 0")
           q-btn(v-if="scope.queuedFiles.length > 0" icon="clear_all" @click="scope.removeQueuedFiles" round dense flat)
             q-tooltip Clear All
           q-btn(v-if="scope.uploadedFiles.length > 0" icon="done_all" @click="scope.removeUploadedFiles" round dense flat)
@@ -35,9 +36,6 @@
               :value="uploadProgressFiles(scope)"
               color="primary"
             )
-          q-btn.hidden(v-if="scope.canAddFiles" type="a" icon="add_box" round dense flat)
-            q-uploader-add-trigger
-            q-tooltip Pick Files
           q-btn(v-if="scope.canUpload" icon="cloud_upload" @click="scope.upload" round dense flat)
             q-tooltip Upload Files
           q-btn(v-if="scope.isUploading" icon="clear" @click="scope.abort" round dense flat)
