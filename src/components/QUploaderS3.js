@@ -93,6 +93,23 @@ export default {
         }
       }
     },
+    removeFile (file) {
+      if (this.disable) { return }
+
+      if (file.__status === 'uploaded') {
+        this.uploadedFiles = this.uploadedFiles.filter(f => f.name !== file.name)
+        this.uploadSize -= file.size
+        this.uploadedSize -= file.size
+      } else if (file.__status === 'uploading') {
+        file.__abort()
+      } else {
+        this.uploadSize -= file.size
+      }
+
+      this.files = this.files.filter(f => f.name !== file.name)
+      this.queuedFiles = this.queuedFiles.filter(f => f.name !== file.name)
+      this.$emit('removed', [ file ])
+    },
     upload () {
       if (this.canUpload === false) {
         return
