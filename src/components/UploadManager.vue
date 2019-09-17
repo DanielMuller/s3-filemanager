@@ -18,7 +18,7 @@
     )
       template(v-slot:header="scope")
         q-uploader-add-trigger
-        .row.no-wrap.items-center.q-pa-sm.q-gutter-xs(v-if="scope.queuedFiles.length > 0")
+        .row.no-wrap.items-center.q-pa-sm.q-gutter-xs(v-if="scope.files.length > 0")
           q-btn(v-if="scope.queuedFiles.length > 0" icon="clear_all" @click="scope.removeQueuedFiles" round dense flat)
             q-tooltip Clear All
           q-btn(v-if="scope.uploadedFiles.length > 0" icon="done_all" @click="scope.removeUploadedFiles" round dense flat)
