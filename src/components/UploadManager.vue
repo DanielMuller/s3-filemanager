@@ -3,6 +3,7 @@
     q-uploader-s3.fit.relative-position(
       ref="uploadManager"
       square
+      flat
       multiple
       style="max-height: none"
       no-thumbnails
