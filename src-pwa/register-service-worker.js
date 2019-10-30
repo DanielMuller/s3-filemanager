@@ -11,6 +11,7 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   // registrationOptions: { scope: './' },
 
+  /* eslint-disable no-console */
   ready () {
     console.log('App is being served from cache by a service worker.')
   },
