@@ -94,6 +94,12 @@ module.exports = function (ctx) {
           .test(/\.pug$/)
           .use('pug-plain-loader')
           .loader('pug-plain-loader')
+        chain.module.rule('mjs')
+          .test(/\.mjs$/)
+          .include
+          .add(/node_modules/)
+          .end()
+          .type('javascript/auto')
       },
       extendWebpack (cfg) {
         cfg.module.rules.push({
