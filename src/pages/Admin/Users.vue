@@ -1,6 +1,7 @@
 <template lang="pug">
   q-page(padding)
     .text-h5 Users
+    q-btn(rounded color="positive" icon="add_circle_outline" no-caps :to="{name:'adminNewUser'}") Create User
     .q-pa-md.row.items-start.q-gutter-md
       q-card(v-for="user in users" :key="user.Username")
         q-card-section

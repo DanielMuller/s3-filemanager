@@ -159,6 +159,39 @@ async function listUsers(Limit, PaginationToken) {
 }
 
 
+async function createUser(username, password, email) {
+  const params = {
+    UserPoolId: userPoolId,
+    Username: username,
+    TemporaryPassword: password,
+    UserAttributes: [
+      {
+        Name: 'email',
+        Value: email
+      },
+      {
+        Name: 'email_verified',
+        Value: "true"
+      }
+    ],
+    MessageAction: "SUPPRESS"
+  };
+
+  try {
+    const result = await cognitoIdentityServiceProvider.adminCreateUser(params).promise();
+    console.log(`User ${username} created`);
+    return {
+      message: `User ${username} created`,
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      error: err
+    }
+  }
+}
+
+
 async function listGroupsForUser(username, Limit, NextToken) {
   const params = {
     UserPoolId: userPoolId,
@@ -239,6 +272,7 @@ module.exports = {
   enableUser,
   getUser,
   listUsers,
+  createUser,
   listGroupsForUser,
   listUsersInGroup,
   signUserOut,

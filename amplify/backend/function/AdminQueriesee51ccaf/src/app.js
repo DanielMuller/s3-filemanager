@@ -23,6 +23,7 @@ const {
   enableUser,
   getUser,
   listUsers,
+  createUser,
   listGroupsForUser,
   listUsersInGroup,
   signUserOut,
@@ -169,6 +170,31 @@ app.get('/listUsers', async (req, res, next) => {
     } else {
       response = await listUsers();
     }
+    res.status(200).json(response);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/createUser', async (req, res, next) => {
+  if (!req.body.username) {
+    const err = new Error('username is required');
+    err.statusCode = 400;
+    return next(err);
+  }
+  if (!req.body.password) {
+    const err = new Error('password is required');
+    err.statusCode = 400;
+    return next(err);
+  }
+  if (!req.body.email) {
+    const err = new Error('E-Mail is required');
+    err.statusCode = 400;
+    return next(err);
+  }
+
+  try {
+    const response = await createUser(req.body.username, req.body.password, req.body.email);
     res.status(200).json(response);
   } catch (err) {
     next(err);
