@@ -192,6 +192,25 @@ async function createUser(username, password, email) {
 }
 
 
+async function deleteUser(username) {
+  const params = {
+    UserPoolId: userPoolId,
+    Username: username
+  };
+
+  try {
+    const result = await cognitoIdentityServiceProvider.adminDeleteUser(params).promise();
+    console.log(`User ${username} deleted`);
+    return {
+      message: `User ${username} deleted`,
+    };
+  } catch (err) {
+    console.log(err);
+    throw(err);
+  }
+}
+
+
 async function listGroupsForUser(username, Limit, NextToken) {
   const params = {
     UserPoolId: userPoolId,
@@ -273,6 +292,7 @@ module.exports = {
   getUser,
   listUsers,
   createUser,
+  deleteUser,
   listGroupsForUser,
   listUsersInGroup,
   signUserOut,
