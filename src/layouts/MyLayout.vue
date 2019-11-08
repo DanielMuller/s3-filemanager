@@ -50,6 +50,12 @@
             q-icon(name="cloud_upload")
           q-item-section
             q-item-label Upload Manager
+        q-item-label(v-if="isAdmin" header) Admin
+        q-item(v-if="isAdmin" clickable :to="{name:'adminListUsers'}")
+          q-item-section(avatar)
+            q-icon(name="account_box")
+          q-item-section
+            q-item-label List Users
 
     q-drawer(
       v-model="showUploadManager"
@@ -76,7 +82,8 @@ export default {
     return {
       isDev: false,
       leftDrawerOpen: false,
-      signedIn: false
+      signedIn: false,
+      isAdmin: false
     }
   },
   created () {
@@ -84,16 +91,20 @@ export default {
     this.$AmplifyEventBus.$on('authState', authState => {
       if (authState === 'signedIn') {
         this.signedIn = true
+        this.setAdminStatus()
       } else {
         this.signedIn = false
+        this.isAdmin = false
       }
     })
     this.$Auth.currentAuthenticatedUser()
       .then(user => {
         this.signedIn = true
+        this.setAdminStatus()
       })
       .catch(err => { // eslint-disable-line handle-callback-err
         this.signedIn = false
+        this.isAdmin = false
       })
   },
   methods: {
@@ -103,6 +114,24 @@ export default {
           this.$AmplifyEventBus.$emit('authState', 'signedOut')
         })
         .catch(e => {
+          this.$Logger.error(e.message)
+        })
+    },
+    setAdminStatus: function () {
+      this.$Auth.currentSession().then(session => {
+        let payload = session.getAccessToken().decodePayload()
+        if ('cognito:groups' in payload) {
+          if (payload['cognito:groups'].indexOf('Admins') > -1) {
+            this.isAdmin = true
+          } else {
+            this.isAdmin = false
+          }
+        } else {
+          this.isAdmin = false
+        }
+      })
+        .catch(e => {
+          this.isAdmin = false
           this.$Logger.error(e.message)
         })
     }
