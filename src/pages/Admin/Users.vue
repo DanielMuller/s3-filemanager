@@ -15,13 +15,17 @@
           .text-body2 Modified: {{ dateFormat(user.UserLastModifiedDate) }}
           .text-body2 Status: {{ user.UserStatus }}
           .text-body2 Enabled: {{ user.Enabled }}
-        q-card-actions(align="right")
-          q-btn(v-if="user.Enabled" flat round icon="remove_circle" text-color="grey" :disabled="mySelf(user)" @click="setStatus(user, 'disabled')")
+        q-card-actions(v-if="!mySelf(user)" align="right")
+          q-btn(v-if="user.Enabled" flat round icon="remove_circle" text-color="grey" @click="setStatus(user, 'disabled')")
             q-tooltip Disable User
-          q-btn(v-else flat round icon="add_circle" text-color="positive" :disabled="mySelf(user)" @click="setStatus(user, 'enabled')")
+          q-btn(v-else flat round icon="add_circle" text-color="positive" @click="setStatus(user, 'enabled')")
             q-tooltip Enable User
-          q-btn(v-if="!user.Enabled" flat round icon="delete" text-color="negative" :disabled="mySelf(user)" @click="deleteUser(user)")
+          q-btn(v-if="!user.Enabled" flat round icon="delete" text-color="negative" @click="deleteUser(user)")
             q-tooltip Delete User
+          q-btn(v-if="user.isAdmin" flat round icon="remove_circle_outline" text-color="accent" @click="revokeAdmin(user)")
+            q-tooltip Revoke Admin
+          q-btn(v-else flat round icon="add_circle_outline" text-color="accent" @click="promoteAdmin(user)")
+            q-tooltip Promote Admin
 </template>
 
 <script>
@@ -67,6 +71,32 @@ export default {
           this.users[i].Enabled = (status === 'enabled')
         }
       }
+    },
+    async promoteAdmin (user) {
+      await this.manageAdmin(user, true, '/addUserToGroup')
+    },
+    async revokeAdmin (user) {
+      await this.manageAdmin(user, false, '/removeUserFromGroup')
+    },
+    async manageAdmin (user, isAdmin, path) {
+      let apiName = 'AdminQueries'
+      let myInit = {
+        body: {
+          'username': user.Username,
+          'groupname': 'Admins'
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${(await this.$Auth.currentSession()).getAccessToken().getJwtToken()}`
+        }
+      }
+      await this.$Amplify.API.post(apiName, path, myInit)
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].Username === user.Username) {
+          this.users[i].isAdmin = isAdmin
+        }
+      }
+      return isAdmin
     },
     async listUsers (limit = 10, nextToken = '') {
       let apiName = 'AdminQueries'
