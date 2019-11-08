@@ -30,6 +30,24 @@ const routes = [
         }
       },
       {
+        name: 'admin',
+        path: 'admin',
+        component: () => import('pages/Admin/Index.vue'),
+        meta: {
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: 'users',
+            name: 'adminListUsers',
+            component: () => import('pages/Admin/Users.vue'),
+            meta: {
+              requiresAuth: true
+            }
+          }
+        ]
+      },
+      {
         name: 'debug',
         path: 'debug',
         component: () => import('pages/Debug.vue'),
