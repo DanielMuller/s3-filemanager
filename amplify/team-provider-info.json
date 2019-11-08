@@ -9,6 +9,11 @@
             "UnauthRoleName": "s3-filemanager-prod-20190830120724-unauthRole",
             "StackName": "s3-filemanager-prod-20190830120724",
             "StackId": "arn:aws:cloudformation:ap-southeast-1:775212403782:stack/s3-filemanager-prod-20190830120724/ad15dad0-cadb-11e9-a52b-0285c5482420"
+        },
+        "categories": {
+            "function": {
+                "AdminQueriesee51ccaf": {}
+            }
         }
     },
     "dev": {
