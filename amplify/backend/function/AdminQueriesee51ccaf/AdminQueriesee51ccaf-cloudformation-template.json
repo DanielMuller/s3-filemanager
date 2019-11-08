@@ -67,7 +67,7 @@
 				"Runtime": "nodejs8.10",
 				"Timeout": "25",
 				"Code": {
-					"S3Bucket": "s3-filemanager-dev-20190830121142-deployment",
+					"S3Bucket": "s3-filemanager-prod-20190830120724-deployment",
 					"S3Key": "amplify-builds/AdminQueriesee51ccaf-3279796c336344764e75-build.zip"
 				}
 			}
