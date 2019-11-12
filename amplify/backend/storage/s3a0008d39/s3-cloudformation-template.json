@@ -693,7 +693,6 @@
                             "Action": [
                                 "s3:PutObject",
                                 "s3:GetObject",
-                                "s3:ListBucket",
                                 "s3:DeleteObject"
                             ],
                             "Resource": [
@@ -706,6 +705,25 @@
                                                 "Ref": "S3Bucket"
                                             },
                                             "/*"
+                                        ]
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:ListBucket"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3Bucket"
+                                            }
                                         ]
                                     ]
                                 }
