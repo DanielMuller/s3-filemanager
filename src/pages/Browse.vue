@@ -134,6 +134,13 @@ export default {
   mounted () {
     this.$Auth.currentAuthenticatedUser()
       .then(user => {
+        user.isAdmin = false
+        let payload = user['signInUserSession']['accessToken']['payload']
+        if ('cognito:groups' in payload) {
+          if (payload['cognito:groups'].indexOf('Admins') > -1) {
+            user.isAdmin = true
+          }
+        }
         this.user = user
         this.$Auth.currentUserInfo().then(userInfo => {
           this.userInfo = userInfo
@@ -191,6 +198,10 @@ export default {
     listFiles () {
       this.loading = true
       let prefix = `private/${this.userInfo.id}/`
+
+      if (this.user.isAdmin) {
+        prefix = 'private/'
+      }
       const s3 = new S3({ credentials: this.credentials })
       let params = {
         Bucket: this.$Amplify._config.aws_user_files_s3_bucket,
