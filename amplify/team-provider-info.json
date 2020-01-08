@@ -8,29 +8,10 @@
             "DeploymentBucketName": "s3-filemanager-prod-20190830120724-deployment",
             "UnauthRoleName": "s3-filemanager-prod-20190830120724-unauthRole",
             "StackName": "s3-filemanager-prod-20190830120724",
-            "StackId": "arn:aws:cloudformation:ap-southeast-1:775212403782:stack/s3-filemanager-prod-20190830120724/ad15dad0-cadb-11e9-a52b-0285c5482420"
+            "StackId": "arn:aws:cloudformation:ap-southeast-1:775212403782:stack/s3-filemanager-prod-20190830120724/ad15dad0-cadb-11e9-a52b-0285c5482420",
+            "AmplifyAppId": "d2yqvs3qjr2y02"
         },
         "categories": {
-            "function": {
-                "AdminQueriesee51ccaf": {}
-            }
-        }
-    },
-    "dev": {
-        "awscloudformation": {
-            "AuthRoleName": "s3-filemanager-dev-20190830121142-authRole",
-            "UnauthRoleArn": "arn:aws:iam::775212403782:role/s3-filemanager-dev-20190830121142-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::775212403782:role/s3-filemanager-dev-20190830121142-authRole",
-            "Region": "ap-southeast-1",
-            "DeploymentBucketName": "s3-filemanager-dev-20190830121142-deployment",
-            "UnauthRoleName": "s3-filemanager-dev-20190830121142-unauthRole",
-            "StackName": "s3-filemanager-dev-20190830121142",
-            "StackId": "arn:aws:cloudformation:ap-southeast-1:775212403782:stack/s3-filemanager-dev-20190830121142/461e5680-cadc-11e9-9725-0238706b9a5e"
-        },
-        "categories": {
-            "auth": {
-                "s3filemanager295566b8": {}
-            },
             "function": {
                 "AdminQueriesee51ccaf": {}
             }
